@@ -27,7 +27,7 @@ to_sample = dict(
     distribution = range(1),
     no_instances = [10_000],
     random_seed = range(10),
-    dissimilarity = range(10)
+    dissimilarity = np.hstack([range(1,9), np.geomspace(1,10)-1])
 )
 
 def func(distribution, no_instances, random_seed, dissimilarity):
