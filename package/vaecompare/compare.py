@@ -15,37 +15,34 @@
 #----------------------------------------------------------------------
 
 from __future__ import division
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.utils import data
-from torch.distributions.normal import Normal
 from scipy.special import logsumexp
-
-
+from .estimate import VAE
 import numpy as np
 import time
-import itertools
-from scipy import stats
-from copy import deepcopy
-
-from .utils import (loss_function, Collate)
 
 class Compare():
     def __init__(self,
-                 vae0,
-                 vae1
+                 *args,
+                 **kwargs
                  ):
 
-        for prop in dir():
-            if prop != "self":
-                setattr(self, prop, locals()[prop])
-
+        self.vae0 = VAE(*args, **kwargs)
+        self.vae1 = VAE(*args, **kwargs)
         self.samples = np.empty(0)
+        self.fitted = False
 
-    def sample(self, nsamples=100):
+    def fit(self, y_train0, y_train1, nsamples=10000):
+        self.vae0.fit(y_train0)
+        self.vae1.fit(y_train1)
+        self.fitted = True
+        self.improve_comparison(nsamples)
+
+        return self
+
+    def improve_comparison(self, nsamples=10000):
+        if not self.fitted:
+            raise Exception("Call method fit first")
+
         s0 = self.vae0.sample_mean_logvar(nsamples)
         s1 = self.vae1.sample_mean_logvar(nsamples)
 

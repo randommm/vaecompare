@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from vaecompare import VAE, Compare
+from vaecompare import VAE, Compare, HTest
 
 def data_gen(size, dim=10):
     res = np.linspace(0.2, 0.9, dim)
@@ -60,6 +60,14 @@ corr -= np.corrcoef(y_test, rowvar=False)
 corr = pd.DataFrame(corr)
 print(corr)
 
-compare = Compare(vae, vae)
-compare.sample()
+compare = Compare()
+compare.fit(y_train, y_train)
 print(compare.samples)
+
+htest_equal = HTest()
+htest_equal.fit(y_train, y_train)
+print(htest_equal.pvalue)
+
+htest_diff = HTest()
+htest_diff.fit(y_train, y_train+2)
+print(htest_diff.pvalue)

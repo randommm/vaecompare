@@ -45,16 +45,10 @@ def func(distribution, no_instances, random_seed, dissimilarity):
         random_seed + no_instances * 1000 + distribution * 1000)
 
     start_time = time.time()
-    y_train = data_gen(no_instances, 10, 0, random_state)
-    vae0 = VAE(dataloader_workers=1, verbose=2)
-    vae0.fit(y_train)
-
-    y_train = data_gen(no_instances, 10, dissimilarity, random_state)
-    vae1 = VAE(dataloader_workers=1, verbose=2)
-    vae1.fit(y_train)
-
-    compare = Compare(vae0, vae1)
-    compare.sample(10000)
+    y_train0 = data_gen(no_instances, 10, 0, random_state)
+    y_train1 = data_gen(no_instances, 10, dissimilarity, random_state)
+    compare = Compare(dataloader_workers=1, verbose=2)
+    compare.fit(y_train0, y_train1, 10000)
     elapsed_time = time.time() - start_time
 
     return dict(
