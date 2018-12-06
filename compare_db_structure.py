@@ -11,7 +11,7 @@ try:
     db = PostgresqlDatabase(pgdb, user=pguser, password=pgpass,
     host=pghost, port=pgport)
 except KeyError:
-    db = SqliteDatabase('results.sqlite3')
+    db = SqliteDatabase('results_compare.sqlite3')
 
 class Result(Model):
     # Data settings

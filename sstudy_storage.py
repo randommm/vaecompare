@@ -39,7 +39,9 @@ def do_simulation_study(to_sample, func, db, Result, max_count=1):
             continue
         db.close()
 
-
         func_res = func(**dsample)
+        print("Results:")
+        print(func_res)
+
         Result.create(**dsample, **func_res)
         print("Result stored in the database", flush=True)

@@ -19,15 +19,15 @@ import time
 import pickle
 from scipy import stats
 
-from db_structure import Result, db
-from vaecompare import VAE, Compare
+from htest_db_structure import Result, db
+from vaecompare import VAE, HTest
 from sstudy_storage import do_simulation_study
 
 to_sample = dict(
     distribution = range(1),
     no_instances = [10_000],
     random_seed = range(10),
-    dissimilarity = np.hstack([range(1,9), np.geomspace(1,10)-1])
+    dissimilarity = [0, 0.0001, 0.001, 0.01, 0.1]
 )
 
 def func(distribution, no_instances, random_seed, dissimilarity):
@@ -47,12 +47,12 @@ def func(distribution, no_instances, random_seed, dissimilarity):
     start_time = time.time()
     y_train0 = data_gen(no_instances, 10, 0, random_state)
     y_train1 = data_gen(no_instances, 10, dissimilarity, random_state)
-    compare = Compare(dataloader_workers=1, verbose=2)
-    compare.fit(y_train0, y_train1, 10000)
+    htest = HTest(dataloader_workers=1, verbose=2)
+    htest.fit(y_train0, y_train1, 10000, 100)
     elapsed_time = time.time() - start_time
 
     return dict(
-        samples=pickle.dumps(compare.samples),
+        pvalue=htest.pvalue,
         elapsed_time=elapsed_time,
         )
 
