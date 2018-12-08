@@ -26,8 +26,8 @@ from sstudy_storage import do_simulation_study
 to_sample = dict(
     distribution = range(1),
     no_instances = [10_000],
-    random_seed = range(10),
-    dissimilarity = [0, 0.0001, 0.001, 0.01, 0.1]
+    random_seed = range(200),
+    dissimilarity = [0, 0.01, 0.1, 0.2]
 )
 
 def func(distribution, no_instances, random_seed, dissimilarity):

@@ -34,5 +34,7 @@ del(df["no_instances"])
 del(df["distribution"])
 groups = ["dissimilarity"]
 
+print(df)
+
 res = df.groupby(groups).mean()
 print(res)
