@@ -28,11 +28,8 @@ class Collate:
     def post_default_collate(self, batch):
         if isinstance(batch, torch.Tensor):
             if batch.dtype.is_floating_point:
-                if batch.dtype != self.float_type:
-                    return torch.tensor(batch, dtype=self.float_type)
-            elif batch.dtype != torch.int64:
-                return torch.tensor(batch, dtype=torch.int64)
-            return batch
+                return torch.as_tensor(batch, dtype=self.float_type)
+            return torch.as_tensor(batch, dtype=torch.int64)
         elif isinstance(batch, collections.Mapping):
             return {key: self.post_default_collate(batch[key])
                 for key in batch}

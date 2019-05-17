@@ -30,8 +30,8 @@ df = pd.DataFrame(list(Result.select().dicts()))
 
 #for db_size in np.sort(db_size_sample):
 
-def plotcdfs(distribution, no_instances):
-    dissimilarity_sample = [0, 0.0001, 0.001, 0.01, 0.1]
+def plotcdfs(distribution, no_instances, ncomparisons):
+    dissimilarity_sample = [0, 0.01, 0.1, 0.2]
 
     ax = plt.figure(figsize=[8.4, 5.8]).add_subplot(111)
     ax.plot(np.linspace(0, 1, 10000), np.linspace(0, 1, 10000))
@@ -43,8 +43,10 @@ def plotcdfs(distribution, no_instances):
         idx1 = df['dissimilarity'] == dissimilarity
         idx2 = df['distribution'] == distribution
         idx3 = df['no_instances'] == no_instances
+        idx4 = df['ncomparisons'] == ncomparisons
         idxs = np.logical_and(idx1, idx2)
         idxs = np.logical_and(idxs, idx3)
+        idxs = np.logical_and(idxs, idx4)
         pvals = np.sort(df[idxs]['pvalue'])
 
         ecdf = ECDF(pvals)
@@ -58,6 +60,7 @@ def plotcdfs(distribution, no_instances):
     filename = "plots/"
     filename += "distribution_" + str(distribution)
     filename += "_and_no_instances_" + str(no_instances)
+    filename += "_and_ncomparisons_" + str(ncomparisons)
     filename += ".pdf"
     with PdfPages(filename) as ps:
         ps.savefig(ax.get_figure(), bbox_inches='tight')
@@ -65,4 +68,5 @@ def plotcdfs(distribution, no_instances):
 
 for distribution in range(1):
     for no_instances in [10000]:
-        plotcdfs(distribution, no_instances)
+        for ncomparisons in [1, 100]:
+            plotcdfs(distribution, no_instances, ncomparisons)

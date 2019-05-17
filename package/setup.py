@@ -30,5 +30,5 @@ setup(name='vaecompare',
       keywords = ['variational autoencoders', 'density comparison',
                   'neural networks'],
       license='GPL3',
-      install_requires=['numpy', 'scipy', 'torch']
+      install_requires=['numpy', 'scipy', 'torch', 'sstudy']
      )

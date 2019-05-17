@@ -19,6 +19,7 @@ class Result(Model):
     no_instances = IntegerField()
     dissimilarity = DoubleField()
     random_seed = IntegerField()
+    ncomparisons = IntegerField()
 
     # Estimation settings
     pvalue = DoubleField()
@@ -28,6 +29,6 @@ class Result(Model):
         database = db
         indexes = (
             (('distribution', 'no_instances', 'dissimilarity',
-              'random_seed'), True),
+              'ncomparisons', 'random_seed'), True),
         )
 Result.create_table()
