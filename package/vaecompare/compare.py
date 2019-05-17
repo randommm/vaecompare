@@ -23,11 +23,12 @@ import time
 class Compare():
     def __init__(self,
                  *args,
-                 **kwargs
+                 distribution="gaussian",
+                 **kwargs,
                  ):
 
-        self.vae0 = VAE(*args, **kwargs)
-        self.vae1 = VAE(*args, **kwargs)
+        self.vae0 = VAE(*args, distribution=distribution, **kwargs)
+        self.vae1 = VAE(*args, distribution=distribution, **kwargs)
         self.samples = np.empty(0)
         self.fitted = False
 
@@ -43,27 +44,30 @@ class Compare():
         if not self.fitted:
             raise Exception("Call method fit first")
 
-        s0 = self.vae0.sample_mean_logvar(nsamples)
-        s1 = self.vae1.sample_mean_logvar(nsamples)
+        s0 = self.vae0.sample_parameters(nsamples)
+        s1 = self.vae1.sample_parameters(nsamples)
 
         samples = np.empty(nsamples)
         for i in range(nsamples):
-            if i % 2:
-                mua = s0[0][i]
-                mub = s1[0][i]
-                logvara = s0[1][i]
-                logvarb = s1[1][i]
-            else:
-                mua = s1[0][i]
-                mub = s0[0][i]
-                logvara = s1[1][i]
-                logvarb = s0[1][i]
+            if self.distribution == "gaussian":
+                if i % 2:
+                    mua = s0[0][i]
+                    mub = s1[0][i]
+                    logvara = s0[1][i]
+                    logvarb = s1[1][i]
+                else:
+                    mua = s1[0][i]
+                    mub = s0[0][i]
+                    logvara = s1[1][i]
+                    logvarb = s0[1][i]
 
-            distance = logvarb.sum() - logvara.sum()
-            distance -= len(logvara)
-            distance += np.exp(logsumexp(logvara - logvarb))
+                distance = logvarb.sum() - logvara.sum()
+                distance -= len(logvara)
+                distance += np.exp(logsumexp(logvara - logvarb))
 
-            distance += ((mub - mua)**2 * np.exp(logvara)).sum()
+                distance += ((mub - mua)**2 * np.exp(logvara)).sum()
+            elif self.distribution == "bernoulli":
+
 
             samples[i] = 0.5*distance
 

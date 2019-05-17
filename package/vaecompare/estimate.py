@@ -110,6 +110,8 @@ n_train = x_train.shape[0] - n_test
                  es_splitter_random_state = 0,
                  float_type = "float",
 
+                 distribution = "gaussian",
+
                  batch_test_size=2000,
                  gpu=True,
                  verbose=1,
@@ -292,7 +294,7 @@ n_train = x_train.shape[0] - n_test
                 batch_actual_size = inputv.shape[0]
                 optimizer.zero_grad()
                 output = self.neural_net(inputv)
-                loss = criterion(output, inputv)
+                loss = criterion(output, inputv, self.distribution)
 
                 np_loss = loss.data.item()
                 if np.isnan(np_loss):
@@ -344,7 +346,7 @@ n_train = x_train.shape[0] - n_test
 
                 batch_actual_size = inputv.shape[0]
                 output = self.neural_net(inputv)
-                loss = criterion(output, inputv)
+                loss = criterion(output, inputv, self.distribution)
                 loss = loss.cpu().numpy().mean()
                 loss_vals.append(loss.item())
                 batch_sizes.append(batch_actual_size)
@@ -354,7 +356,7 @@ n_train = x_train.shape[0] - n_test
             else:
                 return 1 - np.average(loss_vals, weights=batch_sizes)
 
-    def sample_mean_logvar(self, size=1):
+    def sample_parameters(self, size=1):
         with torch.no_grad():
             self.neural_net.eval()
 
@@ -364,16 +366,21 @@ n_train = x_train.shape[0] - n_test
             if self.gpu:
                 z_sample = z_sample.cuda()
 
-            mu, logvar = self.neural_net.decode(z_sample)
-
-            return mu.cpu().numpy(), logvar.cpu().numpy()
+            res = self.neural_net.decode(z_sample)
+            if self.distribution == "gaussian":
+                return res[0].cpu().numpy(), res[1].cpu().numpy()
+            elif self.distribution == "bernoulli":
+                return res.cpu().numpy()
 
 
     def sample_y(self, size=1):
         with torch.no_grad():
-            mu, logvar = self.sample_mean_logvar(size)
-
-            return stats.norm.rvs(mu, np.exp(0.5*logvar))
+            res = self.sample_parameters(size)
+            if self.distribution == "gaussian":
+                mu, logvar = res
+                return stats.norm.rvs(mu, np.exp(0.5*logvar))
+            elif self.distribution == "bernoulli":
+                return stats.bernoulli.rvs(res)
 
     def _construct_neural_net(self):
         class NeuralNet(nn.Module):
@@ -383,8 +390,12 @@ n_train = x_train.shape[0] - n_test
 
                 num_layers_encoder, hidden_size_encoder,
                 dropout_encoder,
+
+                distribution,
                 ):
                 super(NeuralNet, self).__init__()
+
+                self.distribution = distribution
 
                 # Encoder
                 self.dropl = nn.Dropout(p=dropout_encoder)
@@ -420,7 +431,8 @@ n_train = x_train.shape[0] - n_test
                 self.layers_dec = nn.Sequential(*llayers)
 
                 self.ldec_mean = nn.Linear(in_size, y_dim)
-                self.ldec_logvar = nn.Linear(in_size, y_dim)
+                if self.distribution == "gaussian":
+                    self.ldec_logvar = nn.Linear(in_size, y_dim)
 
             def encode(self, y):
                 h1 = self.layers_enc(y)
@@ -433,13 +445,20 @@ n_train = x_train.shape[0] - n_test
 
             def decode(self, z):
                 h3 = self.layers_dec(z)
-                return self.ldec_mean(h3), self.ldec_logvar(h3)
+                if self.distribution == "gaussian":
+                    return self.ldec_mean(h3), self.ldec_logvar(h3)
+                elif self.distribution == "bernoulli":
+                    return torch.sigmoid(self.ldec_mean(h3))
 
             def forward(self, y):
                 mu_enc, logvar_enc = self.encode(y)
                 z = self.reparameterize(mu_enc, logvar_enc)
-                mu_dec, logvar_dec = self.decode(z)
-                return mu_dec, logvar_dec, mu_enc, logvar_enc
+                if self.distribution == "gaussian":
+                    mu_dec, logvar_dec = self.decode(z)
+                    return mu_dec, logvar_dec, mu_enc, logvar_enc
+                elif self.distribution == "bernoulli":
+                    theta_dec = self.decode(z)
+                    return theta_dec, mu_enc, logvar_enc
 
             def _initialize_layer_linear(self, layer):
                 nn.init.constant_(layer.bias, 0)
@@ -456,6 +475,8 @@ n_train = x_train.shape[0] - n_test
                                     self.num_layers_encoder,
                                     self.hidden_size_encoder,
                                     self.dropout_encoder,
+
+                                    self.distribution,
                                     )
 
 

@@ -2,6 +2,7 @@ from __future__ import division
 
 import torch
 from torch import nn
+from torch.nn import functional as F
 from torch.utils import data
 from torch.utils.data.dataloader import default_collate
 from torch.distributions.normal import Normal
@@ -38,11 +39,15 @@ class Collate:
         else:
             return batch
 
-def loss_function(output, inputv):
-    mu_dec, logvar_dec, mu_enc, logvar_enc = output
-
-    dist = Normal(mu_dec, (0.5*logvar_dec).exp(), True)
-    BCE = - dist.log_prob(inputv)
+def loss_function(output, inputv, distribution):
+    if distribution == "gaussian":
+        mu_dec, logvar_dec, mu_enc, logvar_enc = output
+        dist = Normal(mu_dec, (0.5*logvar_dec).exp(), True)
+        BCE = - dist.log_prob(inputv)
+    elif distribution == "bernoulli":
+        theta_dec, mu_enc, logvar_enc = output
+        BCE = F.binary_cross_entropy(theta_dec, inputv,
+            reduction='sum')
 
     KLD = torch.sum(1 + logvar_enc - mu_enc.pow(2) - logvar_enc.exp())
     KLD = -0.5 * KLD

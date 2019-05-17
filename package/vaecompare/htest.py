@@ -23,6 +23,7 @@ import time
 class HTest():
     def __init__(self,
                  *args,
+                 distribution="gaussian",
                  **kwargs,
                  ):
         self.args = args
@@ -34,7 +35,8 @@ class HTest():
 
         divergences = []
         for i in range(ncomparisons+1):
-            samples = Compare(*self.args, **self.kwargs)
+            samples = Compare(*self.args,
+                distribution=self.distribution, **self.kwargs)
             samples = samples.fit(y_train0, y_train1, nsamples).samples
             divergences.append(samples)
 
