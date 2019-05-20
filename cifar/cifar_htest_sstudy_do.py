@@ -19,8 +19,8 @@ import time
 import pickle
 from scipy import stats
 
-from cifar_compare_db_structure import CIFARResult, db
-from vaecompare import Compare
+from cifar_htest_db_structure import CIFARHTestResult, db
+from vaecompare import HTest
 from sstudy import do_simulation_study
 from utils import get_categories
 
@@ -37,15 +37,15 @@ def sample_filter(category1, category2):
 def func(category1, category2):
     start_time = time.time()
     y_train1, y_train2 = get_categories(category1, category2)
-    compare = Compare(dataloader_workers=1, verbose=2,
+    htest = HTest(dataloader_workers=1, verbose=2,
         distribution="bernoulli")
-    compare.fit(y_train1, y_train2, 10000)
+    htest.fit(y_train1, y_train2, 10000)
     elapsed_time = time.time() - start_time
 
     return dict(
-        samples=pickle.dumps(compare.samples),
+        pvalue=htest.pvalue,
         elapsed_time=elapsed_time,
         )
 
-do_simulation_study(to_sample, func, db, CIFARResult,
+do_simulation_study(to_sample, func, db, CIFARHTestResult,
     sample_filter=sample_filter)

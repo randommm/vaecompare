@@ -18,7 +18,6 @@ class Result(Model):
     distribution = IntegerField()
     no_instances = IntegerField()
     dissimilarity = DoubleField()
-    random_seed = IntegerField()
     ncomparisons = IntegerField()
 
     # Estimation settings
@@ -27,8 +26,4 @@ class Result(Model):
 
     class Meta:
         database = db
-        indexes = (
-            (('distribution', 'no_instances', 'dissimilarity',
-              'ncomparisons', 'random_seed'), True),
-        )
 Result.create_table()

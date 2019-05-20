@@ -28,6 +28,7 @@ class HTest():
                  ):
         self.args = args
         self.kwargs = kwargs
+        self.distribution = distribution
 
     def fit(self, y_train0, y_train1, nsamples=10000, ncomparisons=100):
         len0 = len(y_train0)

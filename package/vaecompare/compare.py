@@ -15,10 +15,10 @@
 #----------------------------------------------------------------------
 
 from __future__ import division
-from scipy.special import logsumexp
 from .estimate import VAE
 import numpy as np
 import time
+from .utils import kld_gaussians, kld_bernoullis
 
 class Compare():
     def __init__(self,
@@ -31,6 +31,7 @@ class Compare():
         self.vae1 = VAE(*args, distribution=distribution, **kwargs)
         self.samples = np.empty(0)
         self.fitted = False
+        self.distribution = distribution
 
     def fit(self, y_train0, y_train1, nsamples=10000):
         self.vae0.fit(y_train0)
@@ -50,26 +51,15 @@ class Compare():
         samples = np.empty(nsamples)
         for i in range(nsamples):
             if self.distribution == "gaussian":
-                if i % 2:
-                    mua = s0[0][i]
-                    mub = s1[0][i]
-                    logvara = s0[1][i]
-                    logvarb = s1[1][i]
-                else:
-                    mua = s1[0][i]
-                    mub = s0[0][i]
-                    logvara = s1[1][i]
-                    logvarb = s0[1][i]
-
-                distance = logvarb.sum() - logvara.sum()
-                distance -= len(logvara)
-                distance += np.exp(logsumexp(logvara - logvarb))
-
-                distance += ((mub - mua)**2 * np.exp(logvara)).sum()
+                kld0 = kld_gaussians(s0[0][i], s1[0][i], s0[1][i],
+                    s1[1][i])
+                kld1 = kld_gaussians(s1[0][i], s0[0][i], s1[1][i],
+                    s0[1][i])
             elif self.distribution == "bernoulli":
+                kld0 = kld_bernoullis(s0[i], s1[i])
+                kld1 = kld_bernoullis(s1[i], s0[i])
 
-
-            samples[i] = 0.5*distance
+            samples[i] = (kld0 + kld1) / 2
 
         self.samples = np.hstack([self.samples, samples])
 

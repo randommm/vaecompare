@@ -13,13 +13,13 @@ try:
 except KeyError:
     db = SqliteDatabase('results.sqlite3')
 
-class CIFARResult(Model):
+class CIFARHTestResult(Model):
     # Data settings
     category1 = IntegerField()
     category2 = IntegerField()
 
     # Estimation settings
-    samples = BlobField()
+    pvalue = DoubleField()
     elapsed_time = DoubleField()
 
     class Meta:
@@ -27,4 +27,4 @@ class CIFARResult(Model):
         indexes = (
             (('category1', 'category2'), True),
         )
-CIFARResult.create_table()
+CIFARHTestResult.create_table()

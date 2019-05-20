@@ -6,6 +6,7 @@ from torch.nn import functional as F
 from torch.utils import data
 from torch.utils.data.dataloader import default_collate
 from torch.distributions.normal import Normal
+from scipy.special import logsumexp
 
 import numpy as np
 import collections
@@ -53,3 +54,19 @@ def loss_function(output, inputv, distribution):
     KLD = -0.5 * KLD
 
     return (BCE + KLD).mean()
+
+def kld_gaussians(mua, mub, logvara, logvarb):
+    distance = logvarb.sum() - logvara.sum()
+    distance -= len(logvara)
+    distance += np.exp(logsumexp(logvara - logvarb))
+
+    distance += ((mub - mua)**2 * np.exp(logvara)).sum()
+    return distance * 0.5
+
+def kld_bernoullis(thetaa, thetab):
+    distancep1 = thetaa - thetab
+    distancep2 = np.log(thetab) - np.log(thetaa)
+    distancep2 += np.log(1 - thetaa) - np.log(1 - thetab)
+
+    distance = distancep1 * distancep2
+    return - distance.sum()
