@@ -19,22 +19,36 @@ import pandas as pd
 import pickle
 from scipy import stats
 
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from statsmodels.distributions.empirical_distribution import ECDF
+
 from htest_db_structure import Result, db
 
 df = pd.DataFrame(list(Result.select().dicts()))
-
 del(df["id"])
-del(df["random_seed"])
-df.rename(columns={'elapsed_time': 'mean_elapsed_time'}, inplace=1)
 
-groups = ["dissimilarity", "distribution", "no_instances"]
+cls = [":", "-", "-.", "--", "-", "-."]
+clw = [2.2, 2.2, 2.2, 2.2, 1.0, 1.0]
+for ncomparisons in [1, 100]:
+    fig, ax = plt.subplots()
+    for i, dissimilarity in enumerate([0, 0.01, 0.1, 0.2]):
+        vals = df
+        vals = vals[vals['dissimilarity'] == dissimilarity]
+        vals = vals[vals['ncomparisons'] == ncomparisons]
+        vals = vals.pvalue
+        name = "dissimilarity " + str(dissimilarity)
+        ecdf = ECDF(vals)
+        ax.plot(ecdf.x, ecdf.y, label=name,
+            linestyle=cls[i], lw=clw[i])
 
-del(df["mean_elapsed_time"])
-del(df["no_instances"])
-del(df["distribution"])
-groups = ["dissimilarity"]
+    legend = ax.legend(shadow=True, frameon=True, loc='best',
+        fancybox=True, borderaxespad=.5)
 
-print(df)
+    ax.plot(np.linspace(0, 1, 1000), np.linspace(0, 1, 1000), c='black')
 
-res = df.groupby(groups).mean()
-print(res)
+    filename = "plots/gen_data_compare_ncomparisons_"
+    filename += str(ncomparisons) + ".pdf"
+    with PdfPages(filename) as ps:
+        ps.savefig(fig, bbox_inches='tight')
+    plt.close(ax.get_figure())

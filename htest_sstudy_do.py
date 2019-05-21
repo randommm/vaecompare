@@ -53,4 +53,4 @@ def func(distribution,
         elapsed_time=elapsed_time,
         )
 
-do_simulation_study(to_sample, func, db, Result, max_count=200)
+do_simulation_study(to_sample, func, db, Result, max_count=100)

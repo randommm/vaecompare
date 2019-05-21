@@ -66,7 +66,7 @@ def _pre_kld_gaussians(mua, mub, logvara, logvarb):
 def kld_gaussians(mua, mub, logvara, logvarb):
     d1 = _pre_kld_gaussians(mua, mub, logvara, logvarb)
     d2 = _pre_kld_gaussians(mub, mua, logvarb, logvara)
-    return (d1 + d2) * 0.5
+    return (d1 + d2) * 0.5 / len(mua)
 
 def kld_bernoullis(thetaa, thetab):
     distancep1 = thetaa - thetab
@@ -74,4 +74,4 @@ def kld_bernoullis(thetaa, thetab):
     distancep2 += np.log(1 - thetaa) - np.log(1 - thetab)
 
     distance = distancep1 * distancep2 * 0.5
-    return - distance.sum()
+    return - distance.sum() / len(thetaa)

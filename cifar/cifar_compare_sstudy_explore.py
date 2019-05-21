@@ -81,13 +81,18 @@ for mtype1 in range(10):
     ax.set_xticklabels(names)
 
     for i, v in enumerate([.35, .4, .45, .49]):
+        label = "$\\mathbb{D}(p="
+        label += "{0:.2f}".format(v)
+        label += "; q="
+        label += "{0:.2f}".format(1-v)
+        label += ")$"
         ax.axhline(
             y=kld_bernoullis(np.repeat(v, 3072), np.repeat(1-v, 3072)),
             xmin=0.0, xmax=1.0,
             color=["red", "blue", "green", "yellow"][i],
-            label="KL($P(.;\\theta="+str(v)+")$, $P(.;\\theta="+str(1-v)+"$))")
+            label=label)
 
-    if mtype1 <= 1:
+    if mtype1 in [0, 1, 6, 7]:
         ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
             ncol=2, fancybox=True, shadow=True)
 
