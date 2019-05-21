@@ -55,7 +55,7 @@ def loss_function(output, inputv, distribution):
 
     return (BCE + KLD).mean()
 
-def kld_gaussians(mua, mub, logvara, logvarb):
+def _pre_kld_gaussians(mua, mub, logvara, logvarb):
     distance = logvarb.sum() - logvara.sum()
     distance -= len(logvara)
     distance += np.exp(logsumexp(logvara - logvarb))
@@ -63,10 +63,15 @@ def kld_gaussians(mua, mub, logvara, logvarb):
     distance += ((mub - mua)**2 * np.exp(logvara)).sum()
     return distance * 0.5
 
+def kld_gaussians(mua, mub, logvara, logvarb):
+    d1 = _pre_kld_gaussians(mua, mub, logvara, logvarb)
+    d2 = _pre_kld_gaussians(mub, mua, logvarb, logvara)
+    return (d1 + d2) * 0.5
+
 def kld_bernoullis(thetaa, thetab):
     distancep1 = thetaa - thetab
     distancep2 = np.log(thetab) - np.log(thetaa)
     distancep2 += np.log(1 - thetaa) - np.log(1 - thetab)
 
-    distance = distancep1 * distancep2
+    distance = distancep1 * distancep2 * 0.5
     return - distance.sum()

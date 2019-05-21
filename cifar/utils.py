@@ -9,7 +9,7 @@ def unpickle(f):
 def get_category(category):
     datasets = []
     for i in range(1, 6):
-        obj = unpickle('data_batch_' + str(i))
+        obj = unpickle('datasets/data_batch_' + str(i))
         idx = np.array(obj[b'labels']) == category
         obj = obj[b'data'][idx]
         datasets.append(obj)

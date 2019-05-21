@@ -91,6 +91,6 @@ for mtype1 in range(10):
         ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
             ncol=2, fancybox=True, shadow=True)
 
-    ps = PdfPages("dotplot_"+ str(mtype1) +".pdf")
+    ps = PdfPages("plots/dotplot_"+ str(mtype1) +".pdf")
     ps.savefig(fig, bbox_inches='tight')
     ps.close()

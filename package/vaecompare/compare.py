@@ -51,15 +51,13 @@ class Compare():
         samples = np.empty(nsamples)
         for i in range(nsamples):
             if self.distribution == "gaussian":
-                kld0 = kld_gaussians(s0[0][i], s1[0][i], s0[1][i],
+                kld = kld_gaussians(s0[0][i], s1[0][i], s0[1][i],
                     s1[1][i])
-                kld1 = kld_gaussians(s1[0][i], s0[0][i], s1[1][i],
-                    s0[1][i])
-            elif self.distribution == "bernoulli":
-                kld0 = kld_bernoullis(s0[i], s1[i])
-                kld1 = kld_bernoullis(s1[i], s0[i])
 
-            samples[i] = (kld0 + kld1) / 2
+            elif self.distribution == "bernoulli":
+                kld = kld_bernoullis(s0[i], s1[i])
+
+            samples[i] = kld
 
         self.samples = np.hstack([self.samples, samples])
 
