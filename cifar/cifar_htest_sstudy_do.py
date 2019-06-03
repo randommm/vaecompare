@@ -19,7 +19,7 @@ import time
 import pickle
 from scipy import stats
 
-from cifar_htest_db_structure import CIFARHTestResult, db
+from cifar_htest_db_structure import ResultVAECIFARHTest, db
 from vaecompare import HTest
 from sstudy import do_simulation_study
 from utils import get_categories
@@ -27,18 +27,19 @@ from utils import get_categories
 to_sample = dict(
     category1 = range(10),
     category2 = range(10),
+    averaging = ["median", "mean"],
 )
 
-def sample_filter(category1, category2):
+def sample_filter(category1, category2, averaging):
     if category2 > category1:
         return False
     return True
 
-def func(category1, category2):
+def func(category1, category2, averaging):
     start_time = time.time()
     y_train1, y_train2 = get_categories(category1, category2)
     htest = HTest(dataloader_workers=1, verbose=2,
-        distribution="bernoulli")
+        distribution="bernoulli", averaging=averaging)
     htest.fit(y_train1, y_train2, 10000)
     elapsed_time = time.time() - start_time
 
@@ -47,5 +48,5 @@ def func(category1, category2):
         elapsed_time=elapsed_time,
         )
 
-do_simulation_study(to_sample, func, db, CIFARHTestResult,
+do_simulation_study(to_sample, func, db, ResultVAECIFARHTest,
     sample_filter=sample_filter)

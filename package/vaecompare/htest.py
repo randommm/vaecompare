@@ -23,16 +23,24 @@ import time
 class HTest():
     def __init__(self,
                  *args,
+                 averaging,
                  distribution="gaussian",
                  **kwargs,
                  ):
         self.args = args
         self.kwargs = kwargs
         self.distribution = distribution
+        self.averaging = averaging
 
     def fit(self, y_train0, y_train1, nsamples=10000, ncomparisons=100):
         len0 = len(y_train0)
         y_train01 = np.vstack((y_train0, y_train1))
+
+        averaging = self.averaging
+        if averaging == "median":
+            averaging = np.median
+        elif averaging == "mean":
+            averaging = np.mean
 
         divergences = []
         for i in range(ncomparisons+1):
@@ -47,7 +55,7 @@ class HTest():
             print("Made comparison", i+1, "out of", ncomparisons+1)
 
         if ncomparisons > 1:
-            divergences = [x.mean() for x in divergences]
+            divergences = [averaging(x) for x in divergences]
             self.divergence_unpermuted = divergences[0]
             self.divergence_permuted = np.array(divergences[1:])
 

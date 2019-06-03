@@ -23,9 +23,9 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from statsmodels.distributions.empirical_distribution import ECDF
 
-from htest_db_structure import Result, db
+from htest_db_structure import ResultVAEHTest, db
 
-df = pd.DataFrame(list(Result.select().dicts()))
+df = pd.DataFrame(list(ResultVAEHTest.select().dicts()))
 del(df["id"])
 
 cls = [":", "-", "-.", "--", "-", "-."]

@@ -29,7 +29,7 @@ try:
 except KeyError:
     db = SqliteDatabase('results.sqlite3')
 
-class CIFARResult(Model):
+class ResultVAECIFARCompare(Model):
     # Data settings
     category1 = IntegerField()
     category2 = IntegerField()
@@ -40,7 +40,7 @@ class CIFARResult(Model):
 
     class Meta:
         database = db
-        indexes = (
-            (('category1', 'category2'), True),
-        )
-CIFARResult.create_table()
+        #indexes = (
+        #    (('category1', 'category2'), True),
+        #)
+ResultVAECIFARCompare.create_table()

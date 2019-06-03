@@ -19,9 +19,9 @@ import pandas as pd
 import pickle
 from scipy import stats
 
-from cifar_htest_db_structure import CIFARHTestResult, db
+from cifar_htest_db_structure import ResultVAECIFARHTest, db
 
-df = pd.DataFrame(list(CIFARHTestResult.select().dicts()))
+df = pd.DataFrame(list(ResultVAECIFARHTest.select().dicts()))
 del(df["id"])
 
 datap = dict()

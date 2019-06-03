@@ -19,34 +19,30 @@ import time
 import pickle
 from scipy import stats
 
-from compare_db_structure import Result, db
+from compare_db_structure import ResultVAECompare, db
 from vaecompare import VAE, Compare
 from sstudy_storage import do_simulation_study
 
 to_sample = dict(
     distribution = range(1),
     no_instances = [10_000],
-    random_seed = range(10),
     dissimilarity = np.hstack([range(1,9), np.geomspace(1,10)-1])
 )
 
-def func(distribution, no_instances, random_seed, dissimilarity):
-    def data_gen(size, dim, mu, random_state):
+def func(distribution,
+    no_instances,
+    dissimilarity):
+
+    def data_gen(size, dim, mu):
         res = np.linspace(0.2, 0.9, dim)
-        res = stats.lognorm.rvs(res, scale=2, size=(size, dim),
-            random_state=random_state)
-        res -= stats.lognorm.rvs(0.5, scale=2, size=(size, 1),
-            random_state=random_state)
-        res += stats.norm.rvs(loc=mu, scale=2, size=(size, 1),
-            random_state=random_state)
+        res = stats.lognorm.rvs(res, scale=2, size=(size, dim))
+        res -= stats.lognorm.rvs(0.5, scale=2, size=(size, 1))
+        res += stats.norm.rvs(loc=mu, scale=2, size=(size, 1))
         return res
 
-    random_state = np.random.RandomState(
-        random_seed + no_instances * 1000 + distribution * 1000)
-
     start_time = time.time()
-    y_train0 = data_gen(no_instances, 10, 0, random_state)
-    y_train1 = data_gen(no_instances, 10, dissimilarity, random_state)
+    y_train0 = data_gen(no_instances, 10, 0)
+    y_train1 = data_gen(no_instances, 10, dissimilarity)
     compare = Compare(dataloader_workers=1, verbose=2)
     compare.fit(y_train0, y_train1, 10000)
     elapsed_time = time.time() - start_time
@@ -56,4 +52,4 @@ def func(distribution, no_instances, random_seed, dissimilarity):
         elapsed_time=elapsed_time,
         )
 
-do_simulation_study(to_sample, func, db, Result)
+do_simulation_study(to_sample, func, db, ResultVAECompare, max_count=100)

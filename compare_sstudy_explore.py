@@ -19,9 +19,9 @@ import pandas as pd
 import pickle
 from scipy import stats
 
-from compare_db_structure import Result, db
+from compare_db_structure import ResultVAECompare, db
 
-df = pd.DataFrame(list(Result.select().dicts()))
+df = pd.DataFrame(list(ResultVAECompare.select().dicts()))
 df["samples"] = [pickle.loads(x).mean() for x in df["samples"]]
 
 del(df["id"])

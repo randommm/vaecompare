@@ -19,7 +19,7 @@ import time
 import pickle
 from scipy import stats
 
-from cifar_compare_db_structure import CIFARResult, db
+from cifar_compare_db_structure import ResultVAECIFARCompare, db
 from vaecompare import Compare
 from sstudy import do_simulation_study
 from utils import get_categories
@@ -47,5 +47,5 @@ def func(category1, category2):
         elapsed_time=elapsed_time,
         )
 
-do_simulation_study(to_sample, func, db, CIFARResult,
-    sample_filter=sample_filter)
+do_simulation_study(to_sample, func, db, ResultVAECIFARCompare,
+    sample_filter=sample_filter, max_count=200)

@@ -29,7 +29,7 @@ try:
 except KeyError:
     db = SqliteDatabase('results_compare.sqlite3')
 
-class Result(Model):
+class ResultVAECompare(Model):
     # Data settings
     distribution = IntegerField()
     no_instances = IntegerField()
@@ -46,4 +46,4 @@ class Result(Model):
             (('distribution', 'no_instances', 'dissimilarity',
               'random_seed'), True),
         )
-Result.create_table()
+ResultVAECompare.create_table()

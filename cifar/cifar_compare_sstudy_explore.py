@@ -17,14 +17,15 @@
 import numpy as np
 import pandas as pd
 import pickle
+from functools import reduce
 from scipy import stats
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from vaecompare.utils import kld_bernoullis
 
-from cifar_compare_db_structure import CIFARResult, db
+from cifar_compare_db_structure import ResultVAECIFARCompare, db
 
-df = pd.DataFrame(list(CIFARResult.select().dicts()))
+df = pd.DataFrame(list(ResultVAECIFARCompare.select().dicts()))
 df = df.sort_values(['category1','category2'])
 df["samples"] = [pickle.loads(x) for x in df["samples"] ]
 df["mean_kl_divergence"] = [x.mean() for x in df["samples"]]
@@ -44,7 +45,9 @@ for mtype1 in range(10):
     for i, (mtype2) in enumerate(range(10)):
         rawvals = df.loc[df["category1"] == min(mtype1, mtype2)]
         rawvals = rawvals.loc[df["category2"] == max(mtype1, mtype2)]
-        rawvals = rawvals["samples"].item()
+        rawvals = rawvals["samples"]
+        #rawvals = rawvals.iloc[0]
+        rawvals = reduce(lambda x, y: np.hstack([x, y]), rawvals)
 
         names.append("{} vs {}".format(mtype1, mtype2))
 
@@ -56,8 +59,8 @@ for mtype1 in range(10):
 
         boxvals.append(rawvals)
 
-    fig, ax = plt.subplots()
-    fig.set_size_inches(7.3, 5)
+    fig, axes = plt.subplots(2)
+    fig.set_size_inches(7.3, 8.9)
 
     #Dot plot
     #ax.scatter(dotvals[:, 0], dotvals[:, 1], marker='o', s=15.0,
@@ -67,35 +70,53 @@ for mtype1 in range(10):
     #ax.set_ylim(0.9, 1.05)
 
     #Box plot
-    bplot = ax.boxplot(boxvals, whis='range', showmeans=True,
-                        meanline=True)
+    for ax in axes:
+        ax.violinplot(boxvals, showextrema=False)
+        bplot = ax.boxplot(boxvals,
+                           whis=[.02,.98],
+                           showfliers=False,
+                           showmeans=True,
+                           meanline=True, notch=True)
 
-    for mean in bplot['means']:
-        mean.set(color='#FF6600')
+        for mean in bplot['means']:
+            mean.set(color='#FF6600')
 
-    for median in bplot['medians']:
-        median.set(color='blue')
+        for median in bplot['medians']:
+            median.set(color='blue')
 
-    ax.set_xlabel("Models compared")
-    ax.set_ylabel("Divergence")
-    ax.set_xticklabels(names)
+        for i, v in enumerate([.35, .4, .45, .49]):
+            label = "$\\mathbb{D}(p="
+            label += "{0:.2f}".format(v)
+            label += "; q="
+            label += "{0:.2f}".format(1-v)
+            label += ")$"
+            ax.axhline(
+                y=kld_bernoullis(np.repeat(v, 3072), np.repeat(1-v, 3072)),
+                xmin=0.0, xmax=1.0,
+                color=["red", "blue", "green", "yellow"][i],
+                label=label)
 
-    for i, v in enumerate([.35, .4, .45, .49]):
-        label = "$\\mathbb{D}(p="
-        label += "{0:.2f}".format(v)
-        label += "; q="
-        label += "{0:.2f}".format(1-v)
-        label += ")$"
-        ax.axhline(
-            y=kld_bernoullis(np.repeat(v, 3072), np.repeat(1-v, 3072)),
-            xmin=0.0, xmax=1.0,
-            color=["red", "blue", "green", "yellow"][i],
-            label=label)
+        ax.set_ylabel("Divergence")
 
-    if mtype1 in [0, 1, 6, 7]:
-        ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),
-            ncol=2, fancybox=True, shadow=True)
+    axes[1].set_xlabel("Models compared")
+    axes[0].tick_params(
+        axis='x',
+        which='both',
+        bottom=False,
+        top=False,
+        labelbottom=False
+    )
+    axes[1].set_xticklabels(names)
+
+    #if mtype1 in [0, 1, 6, 7]:
+    axes[1].legend(loc='upper center', bbox_to_anchor=(0.5, 1.2),
+        ncol=2, fancybox=True, shadow=True)
+    fig.subplots_adjust(hspace=0.19)
+
+
+    axes[1].set_ylim(0, 0.01)
 
     ps = PdfPages("plots/dotplot_"+ str(mtype1) +".pdf")
     ps.savefig(fig, bbox_inches='tight')
     ps.close()
+    plt.close(fig)

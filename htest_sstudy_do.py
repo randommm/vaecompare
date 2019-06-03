@@ -19,7 +19,7 @@ import time
 import pickle
 from scipy import stats
 
-from htest_db_structure import Result, db
+from htest_db_structure import ResultVAEHTest, db
 from vaecompare import VAE, HTest
 from sstudy import do_simulation_study
 
@@ -28,12 +28,23 @@ to_sample = dict(
     no_instances = [10_000],
     dissimilarity = [0, 0.01, 0.1, 0.2],
     ncomparisons = [1, 100],
+    averaging = ["median", "mean"],
 )
+
+def sample_filter(distribution,
+    no_instances,
+    dissimilarity,
+    ncomparisons,
+    averaging):
+    if ncomparisons == 1 and averaging == "median":
+        return False
+    return True
 
 def func(distribution,
     no_instances,
     dissimilarity,
-    ncomparisons):
+    ncomparisons,
+    averaging):
     def data_gen(size, dim, mu):
         res = np.linspace(0.2, 0.9, dim)
         res = stats.lognorm.rvs(res, scale=2, size=(size, dim))
@@ -44,7 +55,7 @@ def func(distribution,
     start_time = time.time()
     y_train0 = data_gen(no_instances, 10, 0)
     y_train1 = data_gen(no_instances, 10, dissimilarity)
-    htest = HTest(dataloader_workers=1, verbose=2)
+    htest = HTest(dataloader_workers=1, verbose=2, averaging=averaging)
     htest.fit(y_train0, y_train1, 10000, ncomparisons=ncomparisons)
     elapsed_time = time.time() - start_time
 
@@ -53,4 +64,5 @@ def func(distribution,
         elapsed_time=elapsed_time,
         )
 
-do_simulation_study(to_sample, func, db, Result, max_count=100)
+do_simulation_study(to_sample, func, db, ResultVAEHTest,
+    max_count=200, sample_filter=sample_filter)

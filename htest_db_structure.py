@@ -29,12 +29,13 @@ try:
 except KeyError:
     db = SqliteDatabase('results_htest.sqlite3')
 
-class Result(Model):
+class ResultVAEHTest(Model):
     # Data settings
     distribution = IntegerField()
     no_instances = IntegerField()
     dissimilarity = DoubleField()
     ncomparisons = IntegerField()
+    averaging = TextField()
 
     # Estimation settings
     pvalue = DoubleField()
@@ -42,4 +43,4 @@ class Result(Model):
 
     class Meta:
         database = db
-Result.create_table()
+ResultVAEHTest.create_table()

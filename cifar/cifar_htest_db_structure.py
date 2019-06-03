@@ -29,10 +29,11 @@ try:
 except KeyError:
     db = SqliteDatabase('results.sqlite3')
 
-class CIFARHTestResult(Model):
+class ResultVAECIFARHTest(Model):
     # Data settings
     category1 = IntegerField()
     category2 = IntegerField()
+    averaging = TextField()
 
     # Estimation settings
     pvalue = DoubleField()
@@ -41,6 +42,6 @@ class CIFARHTestResult(Model):
     class Meta:
         database = db
         indexes = (
-            (('category1', 'category2'), True),
+            (('category1', 'category2', 'averaging'), True),
         )
-CIFARHTestResult.create_table()
+ResultVAECIFARHTest.create_table()
