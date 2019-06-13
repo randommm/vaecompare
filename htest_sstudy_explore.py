@@ -31,24 +31,32 @@ del(df["id"])
 cls = [":", "-", "-.", "--", "-", "-."]
 clw = [2.2, 2.2, 2.2, 2.2, 1.0, 1.0]
 for ncomparisons in [1, 100]:
-    fig, ax = plt.subplots()
-    for i, dissimilarity in enumerate([0, 0.01, 0.1, 0.2]):
-        vals = df
-        vals = vals[vals['dissimilarity'] == dissimilarity]
-        vals = vals[vals['ncomparisons'] == ncomparisons]
-        vals = vals.pvalue
-        name = "dissimilarity " + str(dissimilarity)
-        ecdf = ECDF(vals)
-        ax.plot(ecdf.x, ecdf.y, label=name,
-            linestyle=cls[i], lw=clw[i])
+    for averaging in ["median", "mean"]:
+        if ncomparisons == 1 and averaging == "median":
+            continue
+        fig, ax = plt.subplots()
+        for i, dissimilarity in enumerate([0, 0.01, 0.1, 0.2]):
+            vals = df
+            vals = vals[vals['dissimilarity'] == dissimilarity]
+            vals = vals[vals['ncomparisons'] == ncomparisons]
+            vals = vals[vals['averaging'] == averaging]
+            vals = vals.pvalue
+            print(len(vals))
+            name = "dissimilarity " + str(dissimilarity)
+            ecdf = ECDF(vals)
+            ax.plot(ecdf.x, ecdf.y, label=name,
+                linestyle=cls[i], lw=clw[i])
 
-    legend = ax.legend(shadow=True, frameon=True, loc='best',
-        fancybox=True, borderaxespad=.5)
+        legend = ax.legend(shadow=True, frameon=True, loc='best',
+            fancybox=True, borderaxespad=.5)
 
-    ax.plot(np.linspace(0, 1, 1000), np.linspace(0, 1, 1000), c='black')
+        ax.plot(np.linspace(0, 1, 1000), np.linspace(0, 1, 1000),
+            c='black')
 
-    filename = "plots/gen_data_compare_ncomparisons_"
-    filename += str(ncomparisons) + ".pdf"
-    with PdfPages(filename) as ps:
-        ps.savefig(fig, bbox_inches='tight')
-    plt.close(ax.get_figure())
+        filename = "plots/gen_data_compare"
+        filename += "_ncomparisons_" + str(ncomparisons)
+        filename += "_averaging_" + str(averaging)
+        filename += ".pdf"
+        with PdfPages(filename) as ps:
+            ps.savefig(fig, bbox_inches='tight')
+        plt.close(fig)
