@@ -32,7 +32,8 @@ class HTest():
         self.distribution = distribution
         self.averaging = averaging
 
-    def fit(self, y_train0, y_train1, nsamples=10000, ncomparisons=100):
+    def fit(self, y_train0, y_train1, nsamples=10000, ncomparisons=100,
+        nrefits=1):
         len0 = len(y_train0)
         y_train01 = np.vstack((y_train0, y_train1))
 
@@ -44,15 +45,20 @@ class HTest():
 
         divergences = []
         for i in range(ncomparisons+1):
-            samples = Compare(*self.args,
-                distribution=self.distribution, **self.kwargs)
-            samples = samples.fit(y_train0, y_train1, nsamples).samples
-            divergences.append(samples)
+            cfsamples = np.arange(0)
+            for j in range(nrefits):
+                tsamples = Compare(*self.args,
+                    distribution=self.distribution, **self.kwargs)
+                tsamples = tsamples.fit(y_train0, y_train1, nsamples)
+                tsamples = tsamples.samples
+                cfsamples = np.hstack([cfsamples, tsamples])
+            divergences.append(cfsamples)
 
             y_train01 = np.random.permutation(y_train01)
             y_train0 = y_train01[:len0]
             y_train1 = y_train01[len0:]
-            print("Made comparison", i+1, "out of", ncomparisons+1)
+            print("Made comparison", (i+1)*nrefits, "out of",
+                (ncomparisons+1)*nrefits)
 
         if ncomparisons > 1:
             divergences = [averaging(x) for x in divergences]

@@ -28,19 +28,22 @@ to_sample = dict(
     category1 = range(10),
     category2 = range(10),
     averaging = ["median", "mean"],
+    nrefits = [1, 5],
 )
 
-def sample_filter(category1, category2, averaging):
+def sample_filter(category1, category2, averaging, nrefits):
     if category2 > category1:
         return False
     return True
 
-def func(category1, category2, averaging):
+def func(category1, category2, averaging, nrefits):
     start_time = time.time()
+    np.random.seed(10 * category1 + category2)
     y_train1, y_train2 = get_categories(category1, category2)
-    htest = HTest(dataloader_workers=1, verbose=2,
+    np.random.seed()
+    htest = HTest(dataloader_workers=0, verbose=1,
         distribution="bernoulli", averaging=averaging)
-    htest.fit(y_train1, y_train2, 10000)
+    htest.fit(y_train1, y_train2, nrefits=nrefits)
     elapsed_time = time.time() - start_time
 
     return dict(

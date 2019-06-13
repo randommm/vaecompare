@@ -55,7 +55,7 @@ def func(distribution,
     start_time = time.time()
     y_train0 = data_gen(no_instances, 10, 0)
     y_train1 = data_gen(no_instances, 10, dissimilarity)
-    htest = HTest(dataloader_workers=1, verbose=2, averaging=averaging)
+    htest = HTest(dataloader_workers=0, verbose=1, averaging=averaging)
     htest.fit(y_train0, y_train1, 10000, ncomparisons=ncomparisons)
     elapsed_time = time.time() - start_time
 

@@ -33,6 +33,7 @@ class ResultVAECIFARHTest(Model):
     # Data settings
     category1 = IntegerField()
     category2 = IntegerField()
+    nrefits = IntegerField()
     averaging = TextField()
 
     # Estimation settings
@@ -42,6 +43,6 @@ class ResultVAECIFARHTest(Model):
     class Meta:
         database = db
         indexes = (
-            (('category1', 'category2', 'averaging'), True),
+            (('category1', 'category2', 'nrefits', 'averaging'), True),
         )
 ResultVAECIFARHTest.create_table()

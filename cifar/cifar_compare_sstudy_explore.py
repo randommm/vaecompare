@@ -45,7 +45,7 @@ for mtype1 in range(10):
     for i, (mtype2) in enumerate(range(10)):
         rawvals = df.loc[df["category1"] == min(mtype1, mtype2)]
         rawvals = rawvals.loc[df["category2"] == max(mtype1, mtype2)]
-        rawvals = rawvals["samples"]
+        rawvals = rawvals["samples"].iloc[:90]
         #rawvals = rawvals.iloc[0]
         rawvals = reduce(lambda x, y: np.hstack([x, y]), rawvals)
 

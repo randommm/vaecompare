@@ -37,7 +37,7 @@ def sample_filter(category1, category2):
 def func(category1, category2):
     start_time = time.time()
     y_train1, y_train2 = get_categories(category1, category2)
-    compare = Compare(dataloader_workers=1, verbose=2,
+    compare = Compare(dataloader_workers=0, verbose=2,
         distribution="bernoulli")
     compare.fit(y_train1, y_train2, 10000)
     elapsed_time = time.time() - start_time
@@ -48,4 +48,4 @@ def func(category1, category2):
         )
 
 do_simulation_study(to_sample, func, db, ResultVAECIFARCompare,
-    sample_filter=sample_filter, max_count=200)
+    sample_filter=sample_filter, max_count=90)
