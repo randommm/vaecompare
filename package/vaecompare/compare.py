@@ -34,6 +34,10 @@ class Compare():
         self.distribution = distribution
 
     def fit(self, y_train0, y_train1, nsamples=10000):
+        if len(y_train0.shape) == 1:
+            y_train0 = y_train0[:, None]
+        if len(y_train1.shape) == 1:
+            y_train1 = y_train1[:, None]
         self.vae0.fit(y_train0)
         self.vae1.fit(y_train1)
         self.fitted = True

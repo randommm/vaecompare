@@ -22,7 +22,7 @@ from scipy import stats
 from cifar_htest_db_structure import ResultVAECIFARHTest, db
 
 text_pvalues_begin = """
-\\begin{{table}}[!htb]
+\\begin{{table}}[htbp]
  \\centering
  \\caption{{P-values for hypothesis testing for each category \\textbf{{{0}}} refits and averaging using the \\textbf{{{1}}}.}}
 """
@@ -33,7 +33,7 @@ text_pvalues_end = """
 """
 
 text_errors_begin = """
-\\begin{{table}}[!htb]
+\\begin{{table}}[htbp]
  \\centering
  \\caption{{Results of the hypothesis testing when applying a critical rate of 5\\% \\textbf{{{0}}} refits and averaging using the \\textbf{{{1}}}. Here G stands for ``good'' and E2 for type 2 error.}}
 """
@@ -44,7 +44,7 @@ text_errors_end = """
 """
 
 text_summary_begin = """
-\\begin{{table}}[!htb]
+\\begin{{table}}[htbp]
  \\centering
  \\caption{{Summary of the results of the hypothesis testing when applying a critical rate of 5\\%.}}
 """
@@ -61,6 +61,8 @@ df_summary = pd.DataFrame(columns=[
     'Averaging', 'Refits',
     'Number Type I errors', 'Number Type II errors'
 ])
+
+out_pvals = out_errors = ""
 
 for averaging in ["median", "mean"]:
       for nrefits in [1, 5]:
@@ -113,21 +115,24 @@ for averaging in ["median", "mean"]:
           #print(dfe)
           p1 = "with" if nrefits == 5 else "without"
 
-          print(text_pvalues_begin.format(p1, averaging))
-          print(dfp.to_latex())
-          print(text_pvalues_end.format(p1, averaging))
+          out_pvals += text_pvalues_begin.format(p1, averaging)
+          out_pvals += dfp.to_latex()
+          out_pvals += text_pvalues_end.format(p1, averaging)
 
           print("\n")
 
-          print(text_errors_begin.format(p1, averaging))
-          print(dfe.to_latex())
-          print(text_errors_end.format(p1, averaging))
+          out_errors += text_errors_begin.format(p1, averaging)
+          out_errors += dfe.to_latex()
+          out_errors += text_errors_end.format(p1, averaging)
 
           print("\n\n\n")
 
           df_summary.loc[len(df_summary)] = (
               averaging, p1, ce1, ce2
           )
+
+print(out_pvals)
+print(out_errors)
 
 df_summary = df_summary.sort_values(list(df_summary.columns))
 print(text_summary_begin.format())

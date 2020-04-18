@@ -35,6 +35,11 @@ class HTest():
     def fit(self, y_train0, y_train1, nsamples=10000, ncomparisons=100,
         nrefits=1):
         len0 = len(y_train0)
+        if len(y_train0.shape) == 1:
+            y_train0 = y_train0[:, None]
+        if len(y_train1.shape) == 1:
+            y_train1 = y_train1[:, None]
+
         y_train01 = np.vstack((y_train0, y_train1))
 
         averaging = self.averaging
@@ -44,7 +49,7 @@ class HTest():
             averaging = np.mean
 
         divergences = []
-        for i in range(ncomparisons+1):
+        for i in range(ncomparisons):
             cfsamples = np.arange(0)
             for j in range(nrefits):
                 tsamples = Compare(*self.args,
@@ -58,7 +63,7 @@ class HTest():
             y_train0 = y_train01[:len0]
             y_train1 = y_train01[len0:]
             print("Made comparison", (i+1)*nrefits, "out of",
-                (ncomparisons+1)*nrefits)
+                (ncomparisons)*nrefits)
 
         if ncomparisons > 1:
             divergences = [averaging(x) for x in divergences]
@@ -66,9 +71,11 @@ class HTest():
             self.divergence_permuted = np.array(divergences[1:])
 
             n1 = (self.divergence_unpermuted <=
-                self.divergence_permuted).sum() / (ncomparisons)
+                self.divergence_permuted).sum()
+            n1 = (n1 + 1) / ncomparisons
             n2 = (self.divergence_unpermuted <
-                self.divergence_permuted).sum() / (ncomparisons)
+                self.divergence_permuted).sum() / (ncomparisons+1)
+            n2 = (n2 + 1) / ncomparisons
 
             self.pvalue = (n1 + n2) / 2
         else:

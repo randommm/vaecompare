@@ -14,27 +14,34 @@
 #along with this program. If not, see <http://www.gnu.org/licenses/>.
 #----------------------------------------------------------------------
 
-import numpy as np
-import pandas as pd
-import pickle
-from scipy import stats
+from peewee import *
+import os
 
-from compare_db_structure import ResultVAECompare, db
+try:
+    pgdb = os.environ['pgdb']
+    pguser = os.environ['pguser']
+    pgpass = os.environ['pgpass']
+    pghost = os.environ['pghost']
+    pgport = os.environ['pgport']
 
-df = pd.DataFrame(list(ResultVAECompare.select().dicts()))
-df["samples"] = [pickle.loads(x).mean() for x in df["samples"]]
+    db = PostgresqlDatabase(pgdb, user=pguser, password=pgpass,
+    host=pghost, port=pgport)
+except KeyError:
+    db = SqliteDatabase('results_univariate_htest.sqlite3')
 
-del(df["id"])
-del(df["random_seed"])
-df.rename(columns={'samples': 'mean_kl_divergence'}, inplace=1)
-df.rename(columns={'elapsed_time': 'mean_elapsed_time'}, inplace=1)
+class ResultUVAEHTest(Model):
+    # Data settings
+    distribution = IntegerField()
+    no_instances = IntegerField()
+    dissimilarity = DoubleField()
+    method = TextField()
+    nrefits = IntegerField()
+    num_layers = IntegerField()
 
-groups = ["dissimilarity", "distribution", "no_instances"]
+    # Estimation settings
+    pvalue = DoubleField()
+    elapsed_time = DoubleField()
 
-del(df["mean_elapsed_time"])
-del(df["no_instances"])
-del(df["distribution"])
-groups = ["dissimilarity"]
-
-res = df.groupby(groups).mean()
-print(res)
+    class Meta:
+        database = db
+ResultUVAEHTest.create_table()

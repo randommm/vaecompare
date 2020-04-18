@@ -20,13 +20,13 @@ import itertools
 import matplotlib.pyplot as plt
 from statsmodels.distributions.empirical_distribution import ECDF
 from matplotlib.backends.backend_pdf import PdfPages
-from htest_db_structure import ResultVAEHTest
+from univariate_htest_db_structure import ResultUVAEHTest
 
 cls = ["-", ":", "-.", "--"]
 clw = [1.0, 2.0, 1.5, 3.0, 0.5, 4.0]
 clws = list(itertools.product(clw, cls))
 
-df = pd.DataFrame(list(ResultVAEHTest.select().dicts()))
+df = pd.DataFrame(list(ResultUVAEHTest.select().dicts()))
 
 #for db_size in np.sort(db_size_sample):
 
@@ -62,7 +62,8 @@ def plotcdfs(distribution, no_instances, ncomparisons):
     filename = "plots/"
     filename += "distribution_" + str(distribution)
     filename += "_and_no_instances_" + str(no_instances)
-    filename += "_and_ncomparisons_" + str(ncomparisons)
+    #filename += "_and_ncomparisons_" + str(ncomparisons)
+    filename += "_and_method_" + str(method)
     filename += ".pdf"
     with PdfPages(filename) as ps:
         ps.savefig(ax.get_figure(), bbox_inches='tight')

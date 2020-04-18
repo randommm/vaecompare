@@ -21,9 +21,14 @@ from scipy import stats
 
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
-from statsmodels.distributions.empirical_distribution import ECDF
 
 from htest_db_structure import ResultVAEHTest, db
+
+def ecdf_plot(x, ax, *args, **kwargs):
+    xc = np.concatenate(([0], np.sort(x), [1]))
+    y = np.linspace(0, 1, len(x) + 1)
+    yc = np.concatenate(([0], y))
+    ax.step(xc, yc, *args, **kwargs)
 
 df = pd.DataFrame(list(ResultVAEHTest.select().dicts()))
 del(df["id"])
@@ -43,8 +48,7 @@ for ncomparisons in [1, 100]:
             vals = vals.pvalue
             print(len(vals))
             name = "dissimilarity " + str(dissimilarity)
-            ecdf = ECDF(vals)
-            ax.plot(ecdf.x, ecdf.y, label=name,
+            ecdf_plot(vals, ax, label=name,
                 linestyle=cls[i], lw=clw[i])
 
         legend = ax.legend(shadow=True, frameon=True, loc='best',
