@@ -27,7 +27,7 @@ to_sample = dict(
     distribution = range(1),
     no_instances = [10_000],
     dissimilarity = [0, 0.01, 0.1, 0.2],
-    ncomparisons = [1, 100],
+    ncomparisons = [2, 100],
     averaging = ["median", "mean"],
 )
 

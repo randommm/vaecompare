@@ -1,0 +1,9 @@
+*.git
+*.pyc
+build/*
+dist/*
+*.egg-info/
+MANIFEST
+plots/
+*.csv
+*.sqlite3

@@ -65,7 +65,7 @@ class HTest():
             print("Made comparison", (i+1)*nrefits, "out of",
                 (ncomparisons)*nrefits)
 
-        if ncomparisons > 1:
+        if ncomparisons > 2:
             divergences = [averaging(x) for x in divergences]
             self.divergence_unpermuted = divergences[0]
             self.divergence_permuted = np.array(divergences[1:])
@@ -78,7 +78,7 @@ class HTest():
             n2 = (n2 + 1) / ncomparisons
 
             self.pvalue = (n1 + n2) / 2
-        else:
+        elif ncomparison == 2:
             self.divergence_unpermuted = divergences[0]
             self.divergence_permuted = divergences[1]
 
@@ -96,5 +96,7 @@ class HTest():
             # self.pvalue = stats.ks_2samp(self.divergence_unpermuted,
             #     self.divergence_permuted).pvalue
             self.pvalue
+        else:
+            raise ValueError("Invalid number of comparison")
 
         return self
