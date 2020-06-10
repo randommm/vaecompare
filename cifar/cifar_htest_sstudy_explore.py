@@ -55,7 +55,7 @@ text_summary_end = """
 """
 
 df = pd.DataFrame(list(ResultVAECIFARHTest.select().dicts()))
-del(df["id"])
+del df["id"]
 
 df_summary = pd.DataFrame(columns=[
     'Averaging', 'Refits',

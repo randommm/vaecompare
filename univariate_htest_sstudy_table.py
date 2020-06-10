@@ -29,16 +29,16 @@ df = pd.DataFrame(list(ResultUVAEHTest.select()
 #.order_by(fn.Random()).limit(10000)
 .dicts()))
 
-del(df["id"])
+del df["id"]
 assert all(df["distribution"] == 0)
-del(df["distribution"])
+del df["distribution"]
 assert all(df["no_instances"] == 1000)
-del(df["no_instances"])
+del df["no_instances"]
 assert all(df["nrefits"] == 10)
-del(df["nrefits"])
+del df["nrefits"]
 assert all(df["num_layers"] == 5)
-del(df["num_layers"])
-del(df["elapsed_time"])
+del df["num_layers"]
+del df["elapsed_time"]
 
 method = df.method.copy()
 method[method == "vaecompare_median"] = "vaecompare"

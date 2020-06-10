@@ -31,7 +31,7 @@ def ecdf_plot(x, ax, *args, **kwargs):
     ax.step(xc, yc, *args, **kwargs)
 
 df = pd.DataFrame(list(ResultVAEHTest.select().dicts()))
-del(df["id"])
+del df["id"]
 
 cls = [":", "-", "-.", "--", "-", "-."]
 clw = [2.2, 2.2, 2.2, 2.2, 1.0, 1.0]
@@ -59,7 +59,8 @@ for ncomparisons in [1, 100]:
 
         filename = "plots/gen_data_compare"
         filename += "_ncomparisons_" + str(ncomparisons)
-        filename += "_averaging_" + str(averaging)
+        if averaging == 'median':
+            filename += "_averaging_" + str(averaging)
         filename += ".pdf"
         with PdfPages(filename) as ps:
             ps.savefig(fig, bbox_inches='tight')

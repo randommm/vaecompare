@@ -30,9 +30,9 @@ df = df.sort_values(['category1','category2'])
 df["samples"] = [pickle.loads(x) for x in df["samples"] ]
 df["mean_kl_divergence"] = [x.mean() for x in df["samples"]]
 df["std_kl_divergence"] = [x.std() for x in df["samples"]]
-del(df["id"])
+del df["id"]
 
-assert((df["mean_kl_divergence"] > 0).all())
+assert (df["mean_kl_divergence"] > 0).all()
 
 # Dot and box plots prepare data
 

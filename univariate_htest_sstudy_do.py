@@ -96,9 +96,8 @@ def func(distribution,
             averaging=averaging,
             num_layers_decoder=num_layers,
             num_layers_encoder=num_layers,
-            ncomparisons=101,
             )
-        htest.fit(y_train0, y_train1, 10000, ncomparisons=100,
+        htest.fit(y_train0, y_train1, 10000,
             nrefits=nrefits,
             )
 
