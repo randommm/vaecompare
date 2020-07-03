@@ -22,7 +22,7 @@ except ImportError:
     from distutils.core import setup
 
 setup(name='vaecompare',
-      version='0.0.1',
+      version='1.0',
       description='Density comparison using variational autoencoders',
       author='Marco Inacio',
       author_email='pythonpackages@marcoinacio.com',
